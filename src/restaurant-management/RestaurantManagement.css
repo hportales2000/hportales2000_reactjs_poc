@@ -1,0 +1,26 @@
+.cuisine-header{
+    color: #666666;
+    font-weight: bold;
+    border-bottom: #ccc solid 1px;
+    padding-bottom: 10px;
+}
+
+.city-options {
+    list-style-type: none!important;
+    text-align: left;
+    padding: 10px;
+}
+
+.city-options li{
+    padding: 5px;
+}
+
+.cuisine-option {
+    padding-left: 10px;
+}
+
+a.navigationLink,
+a.navigationLink:hover {
+    color: dodgerblue;
+    padding: 0 30px;
+}
