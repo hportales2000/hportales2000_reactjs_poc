@@ -2,21 +2,24 @@
 import React, {Component} from 'react';
 import "./RestaurantManagement.css"
 import Route from 'react-router-dom/es/Route';
+import {withRouter} from 'react-router-dom';
 
 class RestaurantManagement extends Component {
     constructor(props) {
         super(props);
         this.state = {
             restaurantName: '',
+            isRestaurantNameValid: false,
             cuisineStyles: [],
             cities: [],
             selectedCuisines: [],
-            selectedCity: ''
+            selectedCity: '',
+            restaurantToEdit: null,
+            isFormValid: false,
+            isSubmitted: false
         };
-
-        // TODO: if navigating with 'id' means we are editing an existing restaurant, fetch restaurant info by 'id' and populate form
-        // const {id} = this.props.match.params;
-        // alert(id);
+        const id = this.props.match.params && this.props.match.params.id ? this.props.match.params : null;
+        this.getRestaurantToEdit(id);
     }
 
     render() {
@@ -26,15 +29,29 @@ class RestaurantManagement extends Component {
                     <div className='col text-right'>
                         <Route render={({history}) => (
                             <span className="navigationLink" onClick={() => {
-                                history.push('/')
+                                this.pepe(history);
                             }}>
                                 Return to Restaurant List
                             </span>
                         )}/>
                     </div>
+
                     <div className='col login-box'>
                         <h3>Create a Restaurant</h3>
-                        <form onSubmit={this.handleRestaurantCreation}>
+                        <form onSubmit={this.handleRestaurantCreation} autoComplete="off">
+                            <div className="alert-danger">
+                                <div>
+                                    {this.state.restaurantName !== '' && this.state.isRestaurantNameValid === false ?
+                                        <div className="wrapper-error">Invalid Restaurant Name</div> : null}
+                                </div>
+                            </div>
+                            <div className="alert-danger">
+                                <div>
+                                    {this.state.isSubmitted === true && (this.state.restaurantName === '' || this.state.selectedCity === '' || this.state.selectedCuisines.length === 0) ?
+                                        <div className="wrapper-error">All fields are required</div> : null}
+                                </div>
+                            </div>
+
                             <div className="form-group">
                                 <input type="text" className="form-control" id="restaurantName"
                                        value={this.state.restaurantName}
@@ -75,6 +92,11 @@ class RestaurantManagement extends Component {
         );
     }
 
+    pepe(history) {
+        history.push('/');
+        this.setState({restaurantToEdit: null});
+    }
+
     componentDidMount() {
         this.getRestaurantOptions();
     }
@@ -84,23 +106,25 @@ class RestaurantManagement extends Component {
         fetch(url).then(response => response.json()).then(data => {
             this.setState({cuisineStyles: data.cuisineStyles});
             this.setState({cities: data.cities});
+            if (this.state.restaurantToEdit) {
+                this.populateForm(this.state.restaurantToEdit);
+            }
+
         });
     };
 
-    handleRestaurantCreation = (event) => {
-        event.preventDefault();
-        let url = 'https://testapi.io/api/hportales2000/add-restaurant';
-        fetch(url, {
-            method: 'POST',
-            payload: {}
-        }).then(response => response.json()).then(data => {
-            console.log('Added Restaurant Data', this.getFormData());
-            this.clearForm();
-        });
+    getRestaurantToEdit = (id) => {
+        if (id) {
+            let url = 'https://testapi.io/api/hportales2000/get-restaurant-by-id';
+            fetch(url).then(response => response.json()).then(data => {
+                this.setState({restaurantToEdit: data});
+            });
+        }
     };
 
     handleNameChange = (event) => {
         let selected = event.target.value;
+        this.validateForm();
         this.setState({restaurantName: selected});
     };
 
@@ -119,6 +143,7 @@ class RestaurantManagement extends Component {
         }
 
         this.setState({selectedCuisines: selectedCuisines});
+        this.validateForm();
     };
 
     handleCityChange = () => {
@@ -130,7 +155,36 @@ class RestaurantManagement extends Component {
         else {
             this.setState({selectedCity: selected});
         }
+        this.validateForm();
     };
+
+    handleRestaurantCreation = (event) => {
+        event.preventDefault();
+        this.setState({isSubmitted: true});
+        if (this.state.isFormValid === true) {
+            let url = 'https://testapi.io/api/hportales2000/add-restaurant';
+            fetch(url, {
+                method: 'POST',
+                payload: {}
+            }).then(response => response.json()).then(data => {
+                console.log('Added Restaurant Data', this.getFormData());
+                this.setState({isSubmitted: false});
+                this.clearForm();
+            });
+        }
+    };
+
+    validateForm() {
+        const regex = /^[0-9a-zA-Z\s\x27\\-]*$/;
+        const isValid = regex.test(document.getElementById("restaurantName").value);
+        this.setState({isRestaurantNameValid: isValid});
+
+        if (this.state.restaurantName !== '' && this.state.isRestaurantNameValid === true && this.state.selectedCity !== '' && this.state.selectedCuisines.length > 0) {
+            this.setState({isFormValid: true});
+        } else {
+            this.setState({isFormValid: false});
+        }
+    }
 
     getFormData() {
         return {
@@ -146,10 +200,27 @@ class RestaurantManagement extends Component {
         this.setState({selectedCuisines: []});
         //TODO: to be improved :)
         let e = document.getElementById("cuisineList");
-        for(let i = 1; i < e.children.length; i++){
-           e.children[i].children[0].checked = false;
-        };
+        for (let i = 1; i < e.children.length; i++) {
+            e.children[i].children[0].checked = false;
+        }
+    }
+
+    populateForm(restaurant) {
+        this.setState({restaurantName: restaurant.Name});
+        this.setState({selectedCity: restaurant.City});
+        // this.setState({selectedCuisines: []});
+        //TODO: to be improved :)
+        let e = document.getElementById("cuisineList");
+        for (let i = 1; i < e.children.length; i++) {
+            if (restaurant["Cuisine Style"].indexOf(e.children[i].children[1].innerText) !== -1) {
+                e.children[i].children[0].checked = true;
+            }
+        }
+
+        this.setState({selectedCuisines: restaurant["Cuisine Style"]});
+
+        this.validateForm();
     }
 }
 
-export default RestaurantManagement;
+export default withRouter(RestaurantManagement);

@@ -19,8 +19,13 @@
     padding-left: 10px;
 }
 
-a.navigationLink,
-a.navigationLink:hover {
+.navigationLink {
     color: dodgerblue;
     padding: 0 30px;
+    cursor: pointer;
+}
+
+.wrapper-error {
+    padding: 10px;
+    margin: 0 0 5px 0;
 }

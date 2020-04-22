@@ -91,12 +91,27 @@
     width: 180px;
 }
 
+.action-btn {
+    display: inline-block;
+    margin-left: 5px;
+}
+
 .remove-btn {
-    width: 100px;
+    width: 80px;
+    font-size: 11px;
     cursor: pointer;
     text-align: center;
     color: dodgerblue;
     padding: 5px 10px;
     background: #f4f4f4;
     border: dodgerblue solid 1px;
+}
+
+.faIcon {
+    font-size: 15px;
+    color: burlywood;
+}
+
+.action-item {
+    padding: 0 0 0 5px;
 }

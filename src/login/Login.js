@@ -21,7 +21,11 @@ class Login extends React.Component {
                     <div className='col'/>
                     <div className='col login-box'>
                         <h3>Login</h3>
-                        <form onSubmit={this.handleLoginSubmit}>
+                        <form onSubmit={this.handleLoginSubmit} autoComplete="off">
+                            <div className="alert-danger">
+                                {this.state.isSubmitted && (this.state.isUserNameValid === false || this.state.isPasswordValid === false ) ?
+                                    <div className="wrapper-error">All fields are required</div> : null}
+                            </div>
                             <div className="form-group">
                                 <input type="text" className="form-control" id="userName"
                                        value={this.state.userName}
@@ -41,9 +45,6 @@ class Login extends React.Component {
                                 <input type="submit" className="btn btn-primary" id="submit" value='Login'>
 
                                 </input>
-                            </div>
-                            <div className="alert-danger">
-                                {this.state.isSubmitted && (this.state.isUserNameValid === false || this.state.isPasswordValid === false ) ? 'All fields are required' : ''}
                             </div>
                         </form>
                     </div>

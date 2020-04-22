@@ -2,6 +2,8 @@ import React, {Component} from "react";
 import './RestaurantList.css'
 import Modal from 'react-bootstrap/Modal';
 import Route from 'react-router-dom/es/Route';
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faCommentAlt, faEdit, faStar, faTrash} from '@fortawesome/free-solid-svg-icons'
 
 class RestaurantList extends Component {
     constructor(props) {
@@ -82,7 +84,7 @@ class RestaurantList extends Component {
                                             let cuisineToShow = cuisine.substring(1, cuisine.length - 1);
                                             cuisineToShow = cuisineToShow.includes("'") ? cuisineToShow.substring(1, cuisineToShow.length) : cuisineToShow;
                                             return (
-                                                <div className="restaurant-cuisine" variant="light" key={i}>
+                                                <div className="restaurant-cuisine" letiant="light" key={i}>
                                                     {cuisineToShow}
                                                 </div>
                                             );
@@ -92,20 +94,31 @@ class RestaurantList extends Component {
                                 <div className="sepline"/>
                                 <div className="restaurant-stats">
                                     <div>
-                                        <i style={{fontSize: "15px"}}
-                                           className="far fa-comment-alt"/>
+                                        <FontAwesomeIcon className="faIcon" icon={faCommentAlt}/>
                                         &nbsp;
                                         {rest["Number of Reviews"]}
                                     </div>
                                     <div>
-                                        <i style={{fontSize: "15px"}} className="far fa-star"/>
+                                        <FontAwesomeIcon className="faIcon" icon={faStar} />
                                         &nbsp;
                                         {rest["Rating"]}
                                     </div>
                                 </div>
                                 <div>
-                                    <div className="remove-btn" onClick={() => this.handleRemoveRestaurant(index)}>
-                                        Remove
+                                    <div className="action-btn">
+                                        <Route render={({history}) => (
+                                            <div className="remove-btn"
+                                                    onClick={() => {
+                                                        history.push('/restaurant/' + rest.id);
+                                                    }}>
+                                                <FontAwesomeIcon icon={faEdit}/>
+                                                <span className="action-item">Edit</span>
+                                            </div>
+                                        )}/>
+                                    </div>
+                                    <div className="action-btn remove-btn" onClick={() => this.handleRemoveRestaurant(index)}>
+                                        <FontAwesomeIcon icon={faTrash}/>
+                                        <span className="action-item">Remove</span>
                                     </div>
                                 </div>
                             </div>
@@ -162,8 +175,8 @@ class RestaurantList extends Component {
     };
 
     sortBy = () => {
-        var e = document.getElementById("sortfilter");
-        var selected = e.options[e.selectedIndex].value;
+        let e = document.getElementById("sortfilter");
+        let selected = e.options[e.selectedIndex].value;
 
         if (selected === "ranking")
             this.setState({restaurantList: [...this.state.filteredRestaurants]});
@@ -185,9 +198,9 @@ class RestaurantList extends Component {
 
     // preparing restaurantList to clean up Cuisines attributes. Setting restaurant lists states to by displayed
     reRenderList() {
-        var cuisines = [];
-        var restaurantList = [];
-        for (var i = 0; i < this.state.restaurantList.length; i++) {
+        let cuisines = [];
+        let restaurantList = [];
+        for (let i = 0; i < this.state.restaurantList.length; i++) {
             restaurantList.push(this.state.restaurantList[i]);
             this.state.restaurantList[i]["Cuisine Style"]
                 .substring(1, this.state.restaurantList[i]["Cuisine Style"].length - 2)
